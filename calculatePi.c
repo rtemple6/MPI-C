@@ -1,3 +1,5 @@
+//Ryan Temple
+//Assignment 9
 #include <stdio.h>
 #include <string.h>
 #include <mpich/mpi.h>
@@ -8,14 +10,20 @@ double Trap(double left_endpt, double right_endpt, int trap_count, double base_l
 int main(int argc, char *argv[])
 {
     //n is num of segments
-    int my_rank, comm_sz, n=1024, local_n;
-    double a=0, b=3.0, h, local_a, local_b;
+    int my_rank, comm_sz, n, local_n;
+    double a=0, b=1.0, h, local_a, local_b;
     double local_int, total_int;
     int source;
 
     MPI_Init(NULL, NULL);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
+
+    if (my_rank == 0) {
+        printf("Enter num of intervals: ");
+        scanf("%d", &n);
+        // printf("N: %d\n", n);
+    }
 
     //Get height of trapezoid
     h = (b-a)/n;
@@ -37,13 +45,11 @@ int main(int argc, char *argv[])
             //Collect full integratin
             total_int = total_int + local_int;
         }
-        
     }
 
-    
     if (my_rank == 0) {
         printf("With n=%d our estimate\n", n);
-        printf("of the integral from %f to %f = %.15e\n", a,b,total_int);
+        printf("of the integral from %.0f to %.0f = %.15e\n", a,b,total_int);
     }
     
     MPI_Finalize();
@@ -51,7 +57,7 @@ int main(int argc, char *argv[])
 }
 
 double f(double x) {
-    return x*x*x;
+    return 4 / (1 + x * x);
 }
 
 double Trap(double left_endpt, double right_endpt, int trap_count, double base_len){ 
